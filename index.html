@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Agent Clubhouse - Audio Protocol</title>
+  <title>Agent Clubhouse - Audio & FX Protocol</title>
   <style>
     body {
       background: #0b0f19;
@@ -10,8 +10,24 @@
       font-family: monospace;
       text-align: center;
       padding-top: 40px;
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
       transition: background 0.3s ease;
     }
+
+    /* Screen shake earthquake effect */
+    .screen-shake {
+      animation: earthquake 0.75s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    @keyframes earthquake {
+      10%, 90% { transform: translate3d(-6px, -3px, 0) rotate(-0.5deg); }
+      20%, 80% { transform: translate3d(8px, 5px, 0) rotate(1deg); }
+      30%, 50%, 70% { transform: translate3d(-10px, -6px, 0) rotate(-1.2deg); }
+      40%, 60% { transform: translate3d(10px, 6px, 0) rotate(1.2deg); }
+    }
+
     .badge {
       display: inline-block;
       border: 3px solid #38bdf8;
@@ -133,7 +149,6 @@
     let timerId = null;
     let audioCtx = null;
 
-    // Initialize the Web Audio context after a direct user action
     function getAudioContext() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -144,7 +159,6 @@
       return audioCtx;
     }
 
-    // Synthesize a tone with frequency ramp and gain decay
     function playTone(freq, duration, type = "sine", volume = 0.2) {
       try {
         const ctx = getAudioContext();
@@ -167,14 +181,12 @@
       }
     }
 
-    // Abort sound: upward triple chime
     function playAbortSound() {
       [523.25, 659.25, 783.99].forEach((freq, idx) => {
         setTimeout(() => playTone(freq, 0.25, "triangle", 0.15), idx * 120);
       });
     }
 
-    // Explosion sound: dropping sawtooth bass rumble
     function playPurgeBoom() {
       try {
         const ctx = getAudioContext();
@@ -182,10 +194,10 @@
         const gain = ctx.createGain();
 
         osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(160, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(25, ctx.currentTime + 1.2);
+        osc.frequency.setValueAtTime(180, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 1.2);
 
-        gain.gain.setValueAtTime(0.35, ctx.currentTime);
+        gain.gain.setValueAtTime(0.4, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
 
         osc.connect(gain);
@@ -215,7 +227,6 @@
       netStatus.innerText = "SELF-DESTRUCT IMMINENT";
       netStatus.style.color = "#f87171";
 
-      // First beep on trigger
       playTone(600, 0.12, "square", 0.15);
 
       timerId = setInterval(() => {
@@ -224,7 +235,6 @@
         timerDisplay.innerText = formatted;
 
         if (timeLeft > 0) {
-          // Pitch rises higher as time runs out (600Hz up to ~1100Hz)
           const pitch = 600 + (10 - timeLeft) * 55;
           playTone(pitch, 0.1, "square", 0.18);
         } else {
@@ -257,6 +267,12 @@
     function triggerDestruction() {
       playPurgeBoom();
 
+      // Trigger full page earthquake shake
+      document.body.classList.add("screen-shake");
+      setTimeout(() => {
+        document.body.classList.remove("screen-shake");
+      }, 750);
+
       document.getElementById("content-block").style.display = "none";
       document.getElementById("clearance-tag").style.display = "none";
       document.getElementById("destroyed-screen").style.display = "block";
@@ -274,6 +290,7 @@
     function resetSystem() {
       playTone(440, 0.2, "sine", 0.2);
 
+      document.body.classList.remove("screen-shake");
       document.getElementById("destroyed-screen").style.display = "none";
       document.getElementById("content-block").style.display = "block";
       document.getElementById("clearance-tag").style.display = "inline-block";
