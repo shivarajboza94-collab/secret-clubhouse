@@ -103,15 +103,92 @@
       text-shadow: 0 0 20px #ef4444;
       letter-spacing: 4px;
     }
+
+    /* CRT Monitor Frame & Static Glitch Effect */
     #destroyed-screen {
       display: none;
+      position: relative;
       margin-top: 20px;
-      padding: 20px;
-      border: 2px dashed #ef4444;
-      background: #450a0a;
+      padding: 24px 20px;
+      border: 2px solid #ef4444;
+      background: #1c0505;
       color: #fca5a5;
       border-radius: 8px;
+      overflow: hidden;
+      box-shadow: inset 0 0 35px rgba(239, 68, 68, 0.4);
     }
+
+    /* Horizontal micro-scanlines */
+    #destroyed-screen::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0, 0, 0, 0.6) 50%,
+        rgba(0, 0, 0, 0.6)
+      );
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Rolling static beam line */
+    #destroyed-screen::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 100%;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(248, 113, 113, 0.15) 50%,
+        transparent 95%
+      );
+      animation: crt-roll 2.5s linear infinite;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    @keyframes crt-roll {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+
+    /* Chromatic aberration glitch text */
+    .glitch-text {
+      position: relative;
+      margin: 0;
+      color: #f87171;
+      font-size: 1.5rem;
+      font-weight: bold;
+      animation: glitch-flicker 1.2s infinite steps(2, start);
+    }
+
+    @keyframes glitch-flicker {
+      0% {
+        text-shadow: 2px 0 #38bdf8, -2px 0 #ef4444;
+        transform: translate(0, 0);
+      }
+      25% {
+        text-shadow: -3px 0 #38bdf8, 3px 0 #ef4444;
+        transform: translate(-2px, 1px);
+      }
+      50% {
+        text-shadow: 2px -1px #38bdf8, -1px 2px #ef4444;
+        transform: translate(1px, -1px);
+      }
+      75% {
+        text-shadow: -2px 1px #38bdf8, 2px -1px #ef4444;
+        transform: translate(-1px, 2px);
+      }
+      100% {
+        text-shadow: 2px 0 #38bdf8, -2px 0 #ef4444;
+        transform: translate(0, 0);
+      }
+    }
+
     .critical-alarm {
       animation: flash-red 0.8s infinite alternate;
     }
@@ -138,9 +215,9 @@
     </div>
 
     <div id="destroyed-screen">
-      <h2 style="margin: 0; color: #f87171;">💥 SYSTEM PURGED</h2>
-      <p style="margin: 8px 0 15px 0;">All agent logs and classified databases have been erased.</p>
-      <button onclick="resetSystem()" style="background: #38bdf8; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">🔄 REBOOT HQ</button>
+      <h2 class="glitch-text">💥 SYSTEM PURGED</h2>
+      <p style="margin: 12px 0 18px 0; position: relative; z-index: 4;">All agent logs and classified databases have been erased.</p>
+      <button onclick="resetSystem()" style="background: #38bdf8; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; position: relative; z-index: 4;">🔄 REBOOT HQ</button>
     </div>
   </div>
 
@@ -267,7 +344,6 @@
     function triggerDestruction() {
       playPurgeBoom();
 
-      // Trigger full page earthquake shake
       document.body.classList.add("screen-shake");
       setTimeout(() => {
         document.body.classList.remove("screen-shake");
