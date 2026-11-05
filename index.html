@@ -2,18 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Agent Clubhouse - Audio & FX Protocol</title>
+  <title>Agent Clubhouse - Terminal Protocol</title>
   <style>
+    :root {
+      --primary: #38bdf8;
+      --primary-glow: #0284c7;
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --text: #e2e8f0;
+      --terminal-text: #4ade80;
+    }
+
     body {
-      background: #0b0f19;
-      color: #38bdf8;
+      background: var(--bg);
+      color: var(--primary);
       font-family: monospace;
       text-align: center;
-      padding-top: 40px;
+      padding: 30px 15px 50px;
       margin: 0;
       min-height: 100vh;
       overflow-x: hidden;
-      transition: background 0.3s ease;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    /* Matrix mode theme override */
+    body.matrix-mode {
+      --primary: #22c55e;
+      --primary-glow: #15803d;
+      --bg: #020b05;
+      --card-bg: #051a0b;
+      --text: #86efac;
+      --terminal-text: #22c55e;
     }
 
     /* Screen shake earthquake effect */
@@ -30,81 +49,150 @@
 
     .badge {
       display: inline-block;
-      border: 3px solid #38bdf8;
-      padding: 30px 45px;
+      border: 3px solid var(--primary);
+      padding: 25px 35px;
       border-radius: 16px;
-      box-shadow: 0 0 30px #0284c7;
-      background: #111827;
-      max-width: 520px;
+      box-shadow: 0 0 30px var(--primary-glow);
+      background: var(--card-bg);
+      max-width: 580px;
+      width: 100%;
+      box-sizing: border-box;
       transition: all 0.3s ease;
     }
+
     h1 {
-      font-size: 2.2rem;
-      margin-bottom: 10px;
-      color: #38bdf8;
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: var(--primary);
+      letter-spacing: 2px;
     }
+
     p {
-      font-size: 1.05rem;
-      color: #e2e8f0;
-      margin: 8px 0;
+      font-size: 1rem;
+      color: var(--text);
+      margin: 6px 0;
     }
+
     .status { color: #4ade80; font-weight: bold; }
     .codename { color: #f59e0b; font-weight: bold; }
+    
     .clearance {
       display: inline-block;
-      margin-top: 12px;
-      padding: 6px 14px;
+      margin-top: 10px;
+      padding: 5px 14px;
       background: #dc2626;
       color: #fff;
       border-radius: 6px;
       font-weight: bold;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
+      letter-spacing: 1px;
     }
+
     .action-row {
-      margin-top: 25px;
+      margin-top: 20px;
       display: flex;
       justify-content: center;
       gap: 12px;
     }
+
     button {
-      padding: 10px 18px;
+      padding: 9px 16px;
       font-family: monospace;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: bold;
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
+
     .btn-destruct {
       background: #ef4444;
       color: #ffffff;
       border: 2px solid #b91c1c;
     }
+
     .btn-destruct:hover {
       background: #dc2626;
       box-shadow: 0 0 15px #ef4444;
     }
+
     .btn-abort {
       display: none;
       background: #eab308;
       color: #000;
       border: 2px solid #ca8a04;
     }
+
     .btn-abort:hover {
       background: #facc15;
       box-shadow: 0 0 15px #eab308;
     }
+
     #timer-display {
       display: none;
-      margin-top: 25px;
-      font-size: 3rem;
+      margin-top: 20px;
+      font-size: 2.8rem;
       font-weight: bold;
       color: #f87171;
       text-shadow: 0 0 20px #ef4444;
       letter-spacing: 4px;
     }
 
-    /* CRT Monitor Frame & Static Glitch Effect */
+    /* Terminal Interface Styling */
+    .terminal-container {
+      margin-top: 24px;
+      background: #030712;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: left;
+      font-size: 0.85rem;
+      box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.8);
+    }
+
+    .terminal-header {
+      color: #94a3b8;
+      border-bottom: 1px dashed #374151;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+      font-size: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .terminal-history {
+      max-height: 150px;
+      overflow-y: auto;
+      color: var(--terminal-text);
+      line-height: 1.45;
+      word-break: break-all;
+    }
+
+    .terminal-input-row {
+      display: flex;
+      align-items: center;
+      margin-top: 6px;
+      color: var(--primary);
+    }
+
+    .terminal-prompt {
+      font-weight: bold;
+      margin-right: 6px;
+      white-space: nowrap;
+    }
+
+    .terminal-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #f8fafc;
+      font-family: monospace;
+      font-size: 0.88rem;
+      width: 100%;
+      caret-color: var(--primary);
+    }
+
+    /* CRT Frame & Glitch */
     #destroyed-screen {
       display: none;
       position: relative;
@@ -118,7 +206,6 @@
       box-shadow: inset 0 0 35px rgba(239, 68, 68, 0.4);
     }
 
-    /* Horizontal micro-scanlines */
     #destroyed-screen::before {
       content: "";
       position: absolute;
@@ -135,7 +222,6 @@
       z-index: 2;
     }
 
-    /* Rolling static beam line */
     #destroyed-screen::after {
       content: "";
       position: absolute;
@@ -156,7 +242,6 @@
       100% { transform: translateY(100%); }
     }
 
-    /* Chromatic aberration glitch text */
     .glitch-text {
       position: relative;
       margin: 0;
@@ -167,26 +252,11 @@
     }
 
     @keyframes glitch-flicker {
-      0% {
-        text-shadow: 2px 0 #38bdf8, -2px 0 #ef4444;
-        transform: translate(0, 0);
-      }
-      25% {
-        text-shadow: -3px 0 #38bdf8, 3px 0 #ef4444;
-        transform: translate(-2px, 1px);
-      }
-      50% {
-        text-shadow: 2px -1px #38bdf8, -1px 2px #ef4444;
-        transform: translate(1px, -1px);
-      }
-      75% {
-        text-shadow: -2px 1px #38bdf8, 2px -1px #ef4444;
-        transform: translate(-1px, 2px);
-      }
-      100% {
-        text-shadow: 2px 0 #38bdf8, -2px 0 #ef4444;
-        transform: translate(0, 0);
-      }
+      0% { text-shadow: 2px 0 #38bdf8, -2px 0 #ef4444; transform: translate(0, 0); }
+      25% { text-shadow: -3px 0 #38bdf8, 3px 0 #ef4444; transform: translate(-2px, 1px); }
+      50% { text-shadow: 2px -1px #38bdf8, -1px 2px #ef4444; transform: translate(1px, -1px); }
+      75% { text-shadow: -2px 1px #38bdf8, 2px -1px #ef4444; transform: translate(-1px, 2px); }
+      100% { text-shadow: 2px 0 #38bdf8, -2px 0 #ef4444; transform: translate(0, 0); }
     }
 
     .critical-alarm {
@@ -200,8 +270,8 @@
 </head>
 <body>
   <div class="badge" id="hq-card">
-    <h1>🕵️ SECRET AGENT HQ</h1>
-    <p>Agent Codename: <span class="codename">SHADOW-94</span></p>
+    <h1 id="hq-title">🕵️ SECRET AGENT HQ</h1>
+    <p>Agent Codename: <span class="codename" id="agent-tag">SHADOW-94</span></p>
     <p>Network Status: <span class="status" id="net-status">ENCRYPTED & ONLINE</span></p>
     <div class="clearance" id="clearance-tag">TOP SECRET // LEVEL 5 CLEARANCE</div>
 
@@ -211,6 +281,21 @@
       <div class="action-row">
         <button class="btn-destruct" id="start-btn" onclick="startSelfDestruct()">💣 ACTIVATE SELF-DESTRUCT</button>
         <button class="btn-abort" id="abort-btn" onclick="abortSelfDestruct()">🛑 ABORT SEQUENCE</button>
+      </div>
+
+      <!-- Hacker Terminal Window -->
+      <div class="terminal-container" onclick="focusTerminal()">
+        <div class="terminal-header">
+          <span>SECURE_SHELL // v2.4</span>
+          <span>TYPE 'help' FOR CHEATS</span>
+        </div>
+        <div class="terminal-history" id="term-history">
+          <div>System ready. Authenticated as SHADOW-94.</div>
+        </div>
+        <div class="terminal-input-row">
+          <span class="terminal-prompt">agent@hq:~$</span>
+          <input type="text" class="terminal-input" id="term-input" autocomplete="off" spellcheck="false" autofocus>
+        </div>
       </div>
     </div>
 
@@ -244,7 +329,6 @@
 
         osc.type = type;
         osc.frequency.setValueAtTime(freq, ctx.currentTime);
-
         gain.gain.setValueAtTime(volume, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
 
@@ -285,6 +369,10 @@
       } catch (e) {
         console.warn("Audio Context error:", e);
       }
+    }
+
+    function playKeyChirp() {
+      playTone(1200, 0.04, "sine", 0.05);
     }
 
     function startSelfDestruct() {
@@ -375,12 +463,105 @@
       document.getElementById("timer-display").style.display = "none";
 
       const hqCard = document.getElementById("hq-card");
-      hqCard.style.borderColor = "#38bdf8";
-      hqCard.style.boxShadow = "0 0 30px #0284c7";
+      hqCard.style.borderColor = "var(--primary)";
+      hqCard.style.boxShadow = "0 0 30px var(--primary-glow)";
 
       const netStatus = document.getElementById("net-status");
       netStatus.innerText = "ENCRYPTED & ONLINE";
       netStatus.style.color = "#4ade80";
+      focusTerminal();
+    }
+
+    // Terminal logic & Cheat code processor
+    const termInput = document.getElementById("term-input");
+    const termHistory = document.getElementById("term-history");
+
+    function focusTerminal() {
+      termInput.focus();
+    }
+
+    function printOutput(text, color = "") {
+      const line = document.createElement("div");
+      if (color) line.style.color = color;
+      line.innerText = text;
+      termHistory.appendChild(line);
+      termHistory.scrollTop = termHistory.scrollHeight;
+    }
+
+    termInput.addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        const rawCmd = termInput.value.trim();
+        if (!rawCmd) return;
+
+        playKeyChirp();
+        printOutput("agent@hq:~$ " + rawCmd, "#94a3b8");
+        processCommand(rawCmd.toLowerCase());
+        termInput.value = "";
+      }
+    });
+
+    function processCommand(cmd) {
+      const args = cmd.split(" ");
+      const main = args[0];
+
+      switch(main) {
+        case "help":
+          printOutput("AVAILABLE PROTOCOLS:", "#38bdf8");
+          printOutput("  matrix     - Toggle green Matrix phosphors");
+          printOutput("  godmode    - Override Level 99 Root clearance");
+          printOutput("  nuke       - Trigger immediate zero-second purge");
+          printOutput("  scan       - Probe subnet for open ports");
+          printOutput("  whoami     - Display operator credentials");
+          printOutput("  clear      - Wipe shell history");
+          break;
+
+        case "matrix":
+          document.body.classList.toggle("matrix-mode");
+          const active = document.body.classList.contains("matrix-mode");
+          printOutput(active ? ">> MATRIX PROTOCOL ACTIVE" : ">> MATRIX PROTOCOL TERMINATED", "#22c55e");
+          playTone(880, 0.15, "triangle", 0.15);
+          break;
+
+        case "godmode":
+          const tag = document.getElementById("clearance-tag");
+          tag.innerText = "ROOT OVERRIDE // LEVEL 99 CLEARANCE";
+          tag.style.background = "#eab308";
+          tag.style.color = "#000";
+          document.getElementById("hq-card").style.borderColor = "#eab308";
+          document.getElementById("hq-card").style.boxShadow = "0 0 35px #ca8a04";
+          printOutput(">> PERMISSION ELEVATED: ACCESS LEVEL 99 ROOT", "#eab308");
+          playAbortSound();
+          break;
+
+        case "nuke":
+          printOutput(">> INSTANT PURGE OVERRIDE TRIGGERED!", "#ef4444");
+          if (timerId) clearInterval(timerId);
+          triggerDestruction();
+          break;
+
+        case "scan":
+          printOutput("[*] Initiating SYN stealth scan on 192.168.1.0/24...", "#38bdf8");
+          setTimeout(() => printOutput("[+] Port 22/tcp (SSH) OPEN"), 400);
+          setTimeout(() => printOutput("[+] Port 80/tcp (HTTP) OPEN"), 800);
+          setTimeout(() => printOutput("[+] Port 443/tcp (HTTPS) OPEN"), 1200);
+          setTimeout(() => printOutput("[!] Vulnerability detected: Port 445/tcp exposed!"), 1600);
+          break;
+
+        case "whoami":
+          printOutput("IDENTITY: Boza Shiva Sai Kumar Raj [SHADOW-94]");
+          printOutput("AFFILIATION: Offensive Security Team");
+          printOutput("TERMINAL: /dev/pts/0 (Git Bash)");
+          break;
+
+        case "clear":
+          termHistory.innerHTML = "";
+          break;
+
+        default:
+          printOutput(`bash: ${main}: command not found. Enter 'help' for command list.`, "#f87171");
+          playTone(200, 0.1, "sawtooth", 0.1);
+          break;
+      }
     }
   </script>
 </body>
